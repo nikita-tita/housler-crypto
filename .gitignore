@@ -1,0 +1,5 @@
+# Credentials - NEVER COMMIT!
+CREDENTIALS.local
+*CREDENTIALS*
+*PASSWORDS*
+*.secret
