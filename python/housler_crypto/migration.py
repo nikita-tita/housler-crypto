@@ -6,9 +6,10 @@ Supports:
 - Raw AES-GCM (used by agent/housler_pervichka)
 """
 
+from __future__ import annotations
+
 import base64
 import logging
-from typing import Optional
 
 from cryptography.fernet import Fernet, InvalidToken
 from cryptography.hazmat.primitives import hashes
@@ -52,8 +53,8 @@ class FernetMigrator:
 
     def __init__(self):
         self._fernet_cache: dict[str, Fernet] = {}
-        self._single_fernet: Optional[Fernet] = None
-        self._master_key: Optional[bytes] = None
+        self._single_fernet: Fernet | None = None
+        self._master_key: bytes | None = None
         self._salt: bytes = b""
 
     @classmethod
@@ -116,7 +117,7 @@ class FernetMigrator:
         instance._is_agent = True
         return instance
 
-    def _get_fernet_for_field(self, field: str) -> Optional[Fernet]:
+    def _get_fernet_for_field(self, field: str) -> Fernet | None:
         """Get Fernet instance for a field (club-style per-field keys)."""
         if self._single_fernet:
             return self._single_fernet
@@ -177,7 +178,6 @@ class FernetMigrator:
 
     def _decrypt_agent_gcm(self, ciphertext: str) -> str:
         """Decrypt agent's AES-256-GCM format."""
-        import struct
         from cryptography.hazmat.primitives.ciphers.aead import AESGCM
 
         if not hasattr(self, "_agent_key"):
@@ -187,15 +187,15 @@ class FernetMigrator:
             data = base64.b64decode(ciphertext)
 
             # Format: IV (16) + AuthTag (16) + Ciphertext
-            IV_LENGTH = 16
-            TAG_LENGTH = 16
+            iv_length = 16
+            tag_length = 16
 
-            if len(data) < IV_LENGTH + TAG_LENGTH + 1:
+            if len(data) < iv_length + tag_length + 1:
                 raise ValueError("Ciphertext too short")
 
-            iv = data[:IV_LENGTH]
-            tag = data[IV_LENGTH:IV_LENGTH + TAG_LENGTH]
-            encrypted = data[IV_LENGTH + TAG_LENGTH:]
+            iv = data[:iv_length]
+            tag = data[iv_length:iv_length + tag_length]
+            encrypted = data[iv_length + tag_length:]
 
             # AESGCM expects tag appended
             combined = encrypted + tag
@@ -206,7 +206,7 @@ class FernetMigrator:
 
         except Exception as e:
             logger.error(f"Agent GCM decryption failed: {e}")
-            raise ValueError(f"Decryption failed: {e}")
+            raise ValueError(f"Decryption failed: {e}") from e
 
     def migrate(
         self,

@@ -3,7 +3,6 @@ PII utility functions: masking, normalization, validation.
 """
 
 import re
-from typing import Optional
 
 
 def normalize_phone(phone: str) -> str:

@@ -15,7 +15,6 @@ import hashlib
 import logging
 import os
 import struct
-from typing import Optional
 
 from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.ciphers.aead import AESGCM
@@ -65,7 +64,7 @@ class HouslerCrypto:
             if len(key_bytes) != KEY_LENGTH:
                 raise ValueError(f"master_key must be {KEY_LENGTH} bytes (64 hex chars)")
         except ValueError as e:
-            raise ValueError(f"Invalid master_key: {e}")
+            raise ValueError(f"Invalid master_key: {e}") from e
 
         self._master_key = key_bytes
         self._salt = salt.encode("utf-8")
@@ -182,7 +181,7 @@ class HouslerCrypto:
 
         except Exception as e:
             logger.error(f"Decryption failed for field {field}: {e}")
-            raise ValueError(f"Decryption failed: {e}")
+            raise ValueError(f"Decryption failed: {e}") from e
 
     def blind_index(self, plaintext: str, field: str = "default") -> str:
         """
