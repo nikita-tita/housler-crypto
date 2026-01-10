@@ -25,10 +25,15 @@
 | Категория | Всего | Done | In Progress | Blocked | Todo |
 |-----------|-------|------|-------------|---------|------|
 | Тестирование (TEST) | 4 | 3 | 0 | 0 | 1 |
-| Публикация (PUB) | 2 | 0 | 0 | 0 | 2 |
+| Публикация (PUB) | 2 | 0 | 0 | 2 | 0 |
 | Документация (DOC) | 2 | 0 | 0 | 0 | 2 |
-| Инфраструктура (INFRA) | 2 | 0 | 0 | 0 | 2 |
-| **Итого** | **10** | **3** | **0** | **0** | **7** |
+| Инфраструктура (INFRA) | 2 | 1 | 0 | 0 | 1 |
+| **Итого** | **10** | **4** | **0** | **2** | **4** |
+
+### Репозиторий
+- **GitHub:** https://github.com/nikita-tita/housler-crypto
+- **CI:** Все 8 jobs passing (lint + tests: Python 3.10-3.12, Node 18-22)
+- **Release:** v1.0.0 опубликован
 
 ---
 
@@ -98,41 +103,53 @@
 ### TEST-004: Настроить CI/CD
 - **Статус:** `done`
 - **Приоритет:** HIGH
-- **Описание:** Нет CI для запуска тестов
+- **Описание:** CI для запуска тестов и линтинга
 - **DoD:**
   - [x] .github/workflows/ci.yml создан
-  - [x] Python: pytest + coverage (Python 3.9-3.12)
+  - [x] Python: pytest + coverage (Python 3.10, 3.11, 3.12)
   - [x] TypeScript: jest + coverage (Node 18, 20, 22)
   - [ ] Cross-platform tests — см. TEST-003
   - [x] Lint: ruff (Python), tsc --noEmit (TypeScript)
+  - [x] CI полностью зелёный (все 8 jobs passing)
 - **Артефакты:**
   - `.github/workflows/ci.yml` — тесты и линтинг
-  - `.github/workflows/release.yml` — автопубликация
-- **Завершено:** 2026-01-09
+  - `.github/workflows/release.yml` — автопубликация при создании release
+  - GitHub: https://github.com/nikita-tita/housler-crypto
+- **Завершено:** 2026-01-10
 
 ### PUB-001: Опубликовать в PyPI
-- **Статус:** `todo`
+- **Статус:** `blocked`
 - **Приоритет:** HIGH
-- **Описание:** Библиотека не опубликована
+- **Описание:** Библиотека не опубликована в PyPI
 - **DoD:**
-  - [ ] pyproject.toml настроен
-  - [ ] Версия 0.1.0
+  - [x] pyproject.toml настроен
+  - [x] Версия 1.0.0
+  - [x] GitHub release v1.0.0 создан
+  - [ ] Trusted Publisher настроен на PyPI
   - [ ] Загружено в PyPI (housler-crypto)
-  - [ ] pip install housler-crypto работает
-- **Зависимости:** TEST-001 (сначала тесты)
-- **Сложность:** S (1-2 часа)
+  - [ ] `pip install housler-crypto` работает
+- **Блокер:** Требуется настроить PyPI Trusted Publishing:
+  1. https://pypi.org/manage/account/publishing/
+  2. Добавить publisher: owner=nikita-tita, repo=housler-crypto, workflow=release.yml, environment=release
+- **Зависимости:** TEST-001 (done)
+- **Сложность:** S (15 минут ручной настройки)
 
 ### PUB-002: Опубликовать в npm
-- **Статус:** `todo`
+- **Статус:** `blocked`
 - **Приоритет:** HIGH
-- **Описание:** Библиотека не опубликована
+- **Описание:** Библиотека не опубликована в npm
 - **DoD:**
-  - [ ] package.json настроен
-  - [ ] Версия 0.1.0
+  - [x] package.json настроен
+  - [x] Версия 1.0.0
+  - [x] GitHub release v1.0.0 создан
+  - [ ] NPM_TOKEN secret добавлен в GitHub
   - [ ] Загружено в npm (@housler/crypto)
-  - [ ] npm install @housler/crypto работает
-- **Зависимости:** TEST-002 (сначала тесты)
-- **Сложность:** S (1-2 часа)
+  - [ ] `npm install @housler/crypto` работает
+- **Блокер:** Требуется добавить NPM_TOKEN:
+  1. Создать токен: https://www.npmjs.com/settings/tokens (Automation)
+  2. `gh secret set NPM_TOKEN --repo nikita-tita/housler-crypto`
+- **Зависимости:** TEST-002 (done)
+- **Сложность:** S (15 минут ручной настройки)
 
 ---
 
@@ -160,15 +177,18 @@
 - **Сложность:** S (2-3 часа)
 
 ### INFRA-001: Версионирование
-- **Статус:** `todo`
+- **Статус:** `done`
 - **Приоритет:** MEDIUM
-- **Описание:** Нет системы версионирования
+- **Описание:** Система версионирования
 - **DoD:**
-  - [ ] CHANGELOG.md создан
-  - [ ] Semantic versioning
-  - [ ] Git tags для релизов
-  - [ ] GitHub Releases
-- **Сложность:** S (1 час)
+  - [ ] CHANGELOG.md создан — TODO
+  - [x] Semantic versioning (v1.0.0)
+  - [x] Git tags для релизов
+  - [x] GitHub Releases (v1.0.0 опубликован)
+- **Артефакты:**
+  - https://github.com/nikita-tita/housler-crypto/releases/tag/v1.0.0
+- **Завершено:** 2026-01-10
+- **Примечание:** CHANGELOG.md можно добавить позже
 
 ### INFRA-002: Security advisory process
 - **Статус:** `todo`
@@ -188,14 +208,19 @@
 
 ```
 housler-crypto/
+├── .github/workflows/
+│   ├── ci.yml             # Тесты + линтинг
+│   └── release.yml        # Автопубликация
 ├── python/
 │   ├── housler_crypto/
 │   │   ├── __init__.py
 │   │   ├── core.py        # HouslerCrypto class
-│   │   ├── mask.py        # Masking functions
-│   │   ├── normalize.py   # Phone normalization
+│   │   ├── utils.py       # Masking + normalization
 │   │   └── migration.py   # Legacy format migration
-│   ├── tests/             # TODO: создать
+│   ├── tests/
+│   │   ├── test_core.py   # ~90 тестов
+│   │   ├── test_utils.py
+│   │   └── test_migration.py
 │   ├── pyproject.toml
 │   └── README.md
 ├── typescript/
@@ -204,7 +229,9 @@ housler-crypto/
 │   │   ├── core.ts        # HouslerCrypto class
 │   │   ├── mask.ts        # Masking functions
 │   │   └── normalize.ts   # Phone normalization
-│   ├── __tests__/         # TODO: создать
+│   ├── __tests__/
+│   │   ├── core.test.ts   # 57 тестов
+│   │   └── utils.test.ts
 │   ├── package.json
 │   └── tsconfig.json
 └── README.md
