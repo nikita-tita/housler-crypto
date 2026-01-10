@@ -23,8 +23,8 @@ Usage:
 """
 
 from .core import HouslerCrypto
-from .utils import mask, normalize_phone, normalize_email
 from .migration import FernetMigrator
+from .utils import mask, normalize_email, normalize_phone
 
 __version__ = "1.0.0"
 __all__ = [
