@@ -63,7 +63,7 @@ class FernetMigrator:
         encryption_key: str,
         encryption_salt: str,
         iterations: int = 100_000,
-    ) -> "FernetMigrator":
+    ) -> FernetMigrator:
         """
         Create migrator for lk project's Fernet encryption.
 
@@ -92,7 +92,7 @@ class FernetMigrator:
         master_key: str,
         salt: str = "vas3k_club_pii_salt_v1",
         iterations: int = 100_000,
-    ) -> "FernetMigrator":
+    ) -> FernetMigrator:
         """
         Create migrator for club project's Fernet encryption.
 
@@ -105,7 +105,7 @@ class FernetMigrator:
         return instance
 
     @classmethod
-    def from_agent_config(cls, encryption_key: str) -> "FernetMigrator":
+    def from_agent_config(cls, encryption_key: str) -> FernetMigrator:
         """
         Create migrator for agent (housler_pervichka) AES-GCM encryption.
 
