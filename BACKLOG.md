@@ -1,9 +1,19 @@
 # Бэклог проекта housler-crypto
 
-Единый источник правды для задач проекта.
+Единый источник правды для задач проекта housler-crypto.
 
-**Последнее обновление:** 2026-01-10
-**Источник:** Q1 2026 Ecosystem Review
+**Последнее обновление:** 2026-01-11
+**Источник:** Синхронизация с TEAM_TASKS.md
+
+---
+
+## Схема ID задач
+
+Все задачи housler-crypto имеют префикс `HC-` для уникальности в экосистеме:
+- `HC-TEST-XXX` — тестирование
+- `HC-PUB-XXX` — публикация
+- `HC-DOC-XXX` — документация
+- `HC-INFRA-XXX` — инфраструктура
 
 ---
 
@@ -24,27 +34,26 @@
 
 | Категория | Всего | Done | In Progress | Blocked | Todo |
 |-----------|-------|------|-------------|---------|------|
-| Тестирование (TEST) | 4 | 3 | 0 | 0 | 1 |
-| Публикация (PUB) | 2 | 0 | 0 | 2 | 0 |
-| Документация (DOC) | 2 | 0 | 0 | 0 | 2 |
-| Инфраструктура (INFRA) | 2 | 1 | 0 | 0 | 1 |
-| **Итого** | **10** | **4** | **0** | **2** | **4** |
+| Тестирование (HC-TEST) | 4 | 3 | 0 | 0 | 1 |
+| Публикация (HC-PUB) | 2 | 0 | 0 | 2 | 0 |
+| Документация (HC-DOC) | 3 | 1 | 0 | 0 | 2 |
+| Инфраструктура (HC-INFRA) | 2 | 2 | 0 | 0 | 0 |
+| **Итого** | **11** | **6** | **0** | **2** | **3** |
 
 ### Репозиторий
 - **GitHub:** https://github.com/nikita-tita/housler-crypto
 - **CI:** Все 8 jobs passing (lint + tests: Python 3.10-3.12, Node 18-22)
-- **Release:** v1.0.0 опубликован
+- **Release:** v1.0.0 создан (не опубликован в PyPI/npm)
 
 ---
 
 ## BLOCKER — Критические задачи
 
-### TEST-001: Добавить тесты для Python
+### HC-TEST-001: Тесты для Python
 - **Статус:** `done`
 - **Приоритет:** BLOCKER
-- **Связь:** ECO-TEST-001
 - **Описание:** Криптографическая библиотека без тестов — критический риск
-- **Путь:** `python/`
+- **Путь:** `python/tests/`
 - **DoD:**
   - [x] test_core.py: encrypt/decrypt roundtrip
   - [x] test_core.py: different fields = different ciphertexts
@@ -55,27 +64,24 @@
   - [x] test_utils.py: phone normalization
   - [x] test_migration.py: Fernet migration (from lk)
   - [x] test_migration.py: AES-GCM migration (from agent)
-  - [ ] test_compat.py: cross-platform (Python ↔ TypeScript) — см. TEST-003
   - [x] Coverage >= 90%
 - **Артефакты:**
   - `python/tests/test_core.py` — 264 строки
   - `python/tests/test_utils.py` — 257 строк
   - `python/tests/test_migration.py` — 227 строк
-  - ~90 тестов
+  - 90 тестов passing
 - **Завершено:** 2026-01-09
-- **Ответственный:** Backend
 
-### TEST-002: Добавить тесты для TypeScript
+### HC-TEST-002: Тесты для TypeScript
 - **Статус:** `done`
 - **Приоритет:** BLOCKER
-- **Путь:** `typescript/`
+- **Путь:** `typescript/__tests__/`
 - **DoD:**
   - [x] core.test.ts: encrypt/decrypt roundtrip
   - [x] core.test.ts: different fields = different ciphertexts
   - [x] core.test.ts: blind_index deterministic
   - [x] core.test.ts: invalid key handling
   - [x] utils.test.ts: masking functions
-  - [ ] compat.test.ts: decrypt Python-encrypted data — см. TEST-003
   - [x] Coverage >= 90%
 - **Артефакты:**
   - `typescript/__tests__/core.test.ts`
@@ -87,7 +93,7 @@
 
 ## HIGH — Первый месяц
 
-### TEST-003: Cross-platform compatibility tests
+### HC-TEST-003: Cross-platform compatibility tests
 - **Статус:** `todo`
 - **Приоритет:** HIGH
 - **Описание:** Убедиться что Python и TypeScript полностью совместимы
@@ -96,11 +102,11 @@
   - [ ] Тест: TypeScript encrypt → Python decrypt
   - [ ] Тест: blind_index идентичен
   - [ ] Тест: одинаковый key → одинаковый derived key
-  - [x] CI запускает оба языка (см. TEST-004)
+  - [x] CI запускает оба языка (см. HC-TEST-004)
 - **Сложность:** M (3-4 часа)
-- **Примечание:** Требуется создать явный cross-platform тест (compat.test.ts или test_compat.py)
+- **Примечание:** Требуется создать явный cross-platform тест
 
-### TEST-004: Настроить CI/CD
+### HC-TEST-004: CI/CD Pipeline
 - **Статус:** `done`
 - **Приоритет:** HIGH
 - **Описание:** CI для запуска тестов и линтинга
@@ -108,16 +114,14 @@
   - [x] .github/workflows/ci.yml создан
   - [x] Python: pytest + coverage (Python 3.10, 3.11, 3.12)
   - [x] TypeScript: jest + coverage (Node 18, 20, 22)
-  - [ ] Cross-platform tests — см. TEST-003
   - [x] Lint: ruff (Python), tsc --noEmit (TypeScript)
   - [x] CI полностью зелёный (все 8 jobs passing)
 - **Артефакты:**
   - `.github/workflows/ci.yml` — тесты и линтинг
   - `.github/workflows/release.yml` — автопубликация при создании release
-  - GitHub: https://github.com/nikita-tita/housler-crypto
 - **Завершено:** 2026-01-10
 
-### PUB-001: Опубликовать в PyPI
+### HC-PUB-001: Публикация в PyPI
 - **Статус:** `blocked`
 - **Приоритет:** HIGH
 - **Описание:** Библиотека не опубликована в PyPI
@@ -131,10 +135,11 @@
 - **Блокер:** Требуется настроить PyPI Trusted Publishing:
   1. https://pypi.org/manage/account/publishing/
   2. Добавить publisher: owner=nikita-tita, repo=housler-crypto, workflow=release.yml, environment=release
-- **Зависимости:** TEST-001 (done)
+- **Зависимости:** HC-TEST-001 (done)
 - **Сложность:** S (15 минут ручной настройки)
+- **Ответственный:** nikita-tita (владелец репо)
 
-### PUB-002: Опубликовать в npm
+### HC-PUB-002: Публикация в npm
 - **Статус:** `blocked`
 - **Приоритет:** HIGH
 - **Описание:** Библиотека не опубликована в npm
@@ -148,14 +153,15 @@
 - **Блокер:** Требуется добавить NPM_TOKEN:
   1. Создать токен: https://www.npmjs.com/settings/tokens (Automation)
   2. `gh secret set NPM_TOKEN --repo nikita-tita/housler-crypto`
-- **Зависимости:** TEST-002 (done)
+- **Зависимости:** HC-TEST-002 (done)
 - **Сложность:** S (15 минут ручной настройки)
+- **Ответственный:** nikita-tita (владелец репо)
 
 ---
 
 ## MEDIUM — Месяц 2-3
 
-### DOC-001: Примеры интеграции
+### HC-DOC-001: Примеры интеграции
 - **Статус:** `todo`
 - **Приоритет:** MEDIUM
 - **Описание:** Добавить примеры для каждого проекта экосистемы
@@ -166,7 +172,7 @@
   - [ ] README обновлён
 - **Сложность:** S (2-3 часа)
 
-### DOC-002: API Reference
+### HC-DOC-002: API Reference
 - **Статус:** `todo`
 - **Приоритет:** MEDIUM
 - **Описание:** Автоматически генерируемая документация
@@ -176,35 +182,47 @@
   - [ ] Hosted на GitHub Pages
 - **Сложность:** S (2-3 часа)
 
-### INFRA-001: Версионирование
+### HC-DOC-003: CHANGELOG.md
+- **Статус:** `done`
+- **Приоритет:** MEDIUM
+- **Описание:** Журнал изменений по версиям
+- **DoD:**
+  - [x] CHANGELOG.md создан
+  - [x] Версия 1.0.0 описана
+  - [x] Формат Keep a Changelog
+- **Артефакты:**
+  - `CHANGELOG.md`
+- **Завершено:** 2026-01-11
+
+### HC-INFRA-001: Версионирование
 - **Статус:** `done`
 - **Приоритет:** MEDIUM
 - **Описание:** Система версионирования
 - **DoD:**
-  - [ ] CHANGELOG.md создан — TODO
   - [x] Semantic versioning (v1.0.0)
   - [x] Git tags для релизов
   - [x] GitHub Releases (v1.0.0 опубликован)
 - **Артефакты:**
   - https://github.com/nikita-tita/housler-crypto/releases/tag/v1.0.0
 - **Завершено:** 2026-01-10
-- **Примечание:** CHANGELOG.md можно добавить позже
 
-### INFRA-002: Security advisory process
-- **Статус:** `todo`
+### HC-INFRA-002: SECURITY.md
+- **Статус:** `done`
 - **Приоритет:** MEDIUM
 - **Описание:** Процесс для security issues
 - **DoD:**
-  - [ ] SECURITY.md создан
-  - [ ] Процесс responsible disclosure
-  - [ ] Контактный email для security
-- **Сложность:** S (30 минут)
+  - [x] SECURITY.md создан
+  - [x] Процесс responsible disclosure
+  - [x] Контактный email для security (security@housler.ru)
+- **Артефакты:**
+  - `SECURITY.md`
+- **Завершено:** 2026-01-11
 
 ---
 
 ## Архитектура
 
-### Структура
+### Структура проекта
 
 ```
 housler-crypto/
@@ -218,22 +236,17 @@ housler-crypto/
 │   │   ├── utils.py       # Masking + normalization
 │   │   └── migration.py   # Legacy format migration
 │   ├── tests/
-│   │   ├── test_core.py   # ~90 тестов
+│   │   ├── test_core.py   # 90 тестов
 │   │   ├── test_utils.py
 │   │   └── test_migration.py
-│   ├── pyproject.toml
-│   └── README.md
+│   └── pyproject.toml
 ├── typescript/
 │   ├── src/
-│   │   ├── index.ts
-│   │   ├── core.ts        # HouslerCrypto class
-│   │   ├── mask.ts        # Masking functions
-│   │   └── normalize.ts   # Phone normalization
+│   │   └── index.ts       # Вся логика (TODO: разделить)
 │   ├── __tests__/
 │   │   ├── core.test.ts   # 57 тестов
 │   │   └── utils.test.ts
-│   ├── package.json
-│   └── tsconfig.json
+│   └── package.json
 └── README.md
 ```
 
@@ -264,23 +277,25 @@ hc1:<base64-encoded-data>
 
 ## Зависимые проекты
 
-При изменении API нужно обновить:
+При публикации HC-PUB-001/002 нужно интегрировать в:
 
-| Проект | Файл | Статус интеграции |
-|--------|------|-------------------|
-| agent.housler.ru | `src/utils/encryption.ts` | Dual-read (hc1: + legacy) |
-| lk.housler.ru | `app/core/encryption.py` | Dual-read (hc1: + Fernet) |
-| club.housler.ru | `utils/encryption.py` | Dual-read (hc1: + Fernet) |
+| Проект | Задача интеграции | ID в TEAM_TASKS |
+|--------|-------------------|-----------------|
+| agent.housler.ru | Заменить encryption.ts | AG-CRYPTO-001 |
+| lk.housler.ru | Заменить encryption.py | LK-CRYPTO-001 |
+| club.housler.ru | Миграция с Fernet | (не запланировано) |
 
 ---
 
-## Связи с другими бэклогами
+## Связи с экосистемными задачами
 
-| Экосистемная задача | Связанная задача |
-|---------------------|------------------|
-| ECO-TEST-001 | TEST-001, TEST-002 |
-| ECO-ARCH-002 | PUB-001, PUB-002 |
+| Задача housler-crypto | Связанная задача экосистемы |
+|-----------------------|---------------------------|
+| HC-PUB-001, HC-PUB-002 | AG-CRYPTO-001, LK-CRYPTO-001 (blocked by) |
+| HC-TEST-003 | — |
+| HC-DOC-001 | — |
 
 ---
 
 *Этот файл — источник правды для задач housler-crypto*
+*Синхронизирован с TEAM_TASKS.md от 2026-01-11*
