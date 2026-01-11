@@ -5,6 +5,7 @@ CREDENTIALS.local
 *.secret
 .env
 .env.*
+ECOSYSTEM_REVIEW*.md
 
 # Python
 __pycache__/
