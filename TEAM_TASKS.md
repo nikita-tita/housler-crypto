@@ -19,10 +19,10 @@
 
 | Приоритет | Всего | Done | In Progress | Blocked | Todo |
 |-----------|-------|------|-------------|---------|------|
-| HIGH | 10 | 5 | 4 | 2 | 0 |
+| HIGH | 10 | 6 | 3 | 2 | 0 |
 | MEDIUM | 5 | 0 | 0 | 0 | 5 |
 | LOW | 5 | 2 | 0 | 0 | 3 |
-| **Итого** | **20** | **7** | **4** | **2** | **7** |
+| **Итого** | **20** | **8** | **3** | **2** | **7** |
 
 ---
 
@@ -45,7 +45,7 @@
 |----|--------|--------|--------|-----|----------|
 | AG-TEST-001 | Тесты auth.service.ts | 6h | `in_progress` | Dev1 | Rev1 |
 | AG-TEST-002 | Тесты encryption.ts | 3h | `in_progress` | Dev2 | Rev1 |
-| AG-INFRA-001 | CI/CD для agent | 3h | `in_progress` | Dev5 | Rev2 |
+| AG-INFRA-001 | CI/CD для agent | 3h | `done` | — | — |
 
 ### lk.housler.ru (LK-)
 
