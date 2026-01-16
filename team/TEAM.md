@@ -1,277 +1,188 @@
-# Команда проекта HOUSLER ECOSYSTEM
+# Команда проекта HOUSLER-CRYPTO
 
-## Общие принципы всех разработчиков
+## Проект: Криптографическая библиотека PII
 
-Каждый член команды — сеньор-инженер:
-- **Безопасность:** 152-ФЗ compliance, шифрование PII, никаких секретов в git
-- **Переиспользование:** максимум shared-компонентов между сервисами
-- **Чистый код:** SOLID, DRY, KISS
-- **Тестирование:** тесты параллельно с кодом
-- **Документация:** код самодокументирован
+**Тип:** Shared library (Python + TypeScript)
+**Версия:** v1.0.0
+**Статус:** Ready for publish (PyPI/npm blocked)
 
 ---
 
-## Экосистема Housler
+## Назначение
 
-| Проект | Домен | Стек | Статус |
-|--------|-------|------|--------|
-| agent.housler.ru | CRM агентов | Node.js/TypeScript + Next.js | Production |
-| lk.housler.ru | Личный кабинет | Python/FastAPI + Next.js | Production |
-| housler-crypto | Криптобиблиотека | Python + TypeScript | v1.0.0 |
-| club.housler.ru | Сообщество | Django + Vue.js | Production |
-| calendar.housler.ru | AI-календарь | Python/FastAPI + Telegram | Production |
-| housler.ru | Аналитика цен | Python/Flask | Production |
+Единая библиотека для шифрования персональных данных (PII) в экосистеме Housler.
+Обеспечивает compliance с 152-ФЗ.
 
-### Shared компоненты
-- **База данных:** PostgreSQL (agent-postgres) — shared между agent и lk
-- **Авторизация:** agent.housler.ru — единый auth provider
-- **Шифрование:** housler-crypto — единая библиотека PII encryption
-- **Инфраструктура:** reg.ru сервер (95.163.227.26)
+**Используется в:**
+- agent.housler.ru (TypeScript)
+- lk.housler.ru (Python)
 
 ---
 
-## Руководство
+## Криптографические параметры
 
-### TPM: Technical Project Manager
-**Роль:** Координатор разработки экосистемы
+| Компонент | Алгоритм | Параметры |
+|-----------|----------|-----------|
+| Encryption | AES-256-GCM | IV: 96 bits, Tag: 128 bits |
+| Key Derivation | PBKDF2-SHA256 | 100,000 iterations |
+| Blind Index | BLAKE2b (Py) / SHA256-HMAC (TS) | 32 bytes |
+
+**Формат данных:** `hc1:<base64-encoded-ciphertext>`
+
+---
+
+## Структура проекта
+
+```
+housler-crypto/
+├── python/
+│   ├── housler_crypto/
+│   │   ├── core.py           # HouslerCrypto class
+│   │   ├── utils.py          # Masking, normalization
+│   │   └── migration.py      # Legacy Fernet migration
+│   └── tests/
+│       ├── test_core.py      # 50+ tests
+│       └── test_utils.py
+├── typescript/
+│   ├── src/
+│   │   └── index.ts          # HouslerCrypto class
+│   └── __tests__/
+│       └── core.test.ts      # 57 tests
+├── .github/workflows/
+│   ├── ci.yml                # Tests: Py 3.10-3.12, Node 18-22
+│   └── release.yml           # Auto-publish on release
+└── BACKLOG.md                # Задачи экосистемы
+```
+
+---
+
+## Команда проекта
+
+### BE-CRYPTO: Crypto Developer
+**Роль:** Primary разработчик библиотеки
+
+**Специализация:**
+- Криптография (AES-GCM, PBKDF2, HMAC)
+- Python cryptography library
+- Node.js crypto module
+- Cross-language compatibility
 
 **Обязанности:**
-- Координация между проектами экосистемы
-- Приоритизация задач и разрешение блокеров
-- Контроль качества документации
-- Pre-deploy security checks
-- Синхронизация shared-компонентов
+- Поддержка Python и TypeScript реализаций
+- Обеспечение совместимости между языками
+- Security review криптографического кода
+- Публикация в PyPI и npm
 
-**Принципы:**
-- Блокеры = приоритет #1
-- Security check перед каждым деплоем
-- Документация актуальна или не существует
+**Текущий фокус:** Настройка Trusted Publishing для PyPI/npm
 
 ---
 
-### ARCH-01: Архитектор экосистемы
-**Роль:** Архитектор / Главный ревьюер
+### QA-CRYPTO: QA Engineer
+**Роль:** Тестирование библиотеки
 
-**Обязанности:**
-- Валидация архитектурных решений
-- Code review критических PR (auth, encryption, shared)
-- Контроль соответствия между проектами
-- Выявление антипаттернов и технического долга
-- Документирование решений
+**Coverage требования:** ≥ 90%
 
-**Принципы:**
-- Простота > сложность при равной функциональности
-- Shared компоненты вместо дублирования
-- Каждое отклонение требует обоснования
+**Тесты:**
+- Unit tests (encrypt/decrypt roundtrip)
+- Cross-language compatibility tests
+- Edge cases (empty strings, unicode, large data)
+- Migration tests (legacy Fernet)
 
 ---
 
-## Backend Team
+## API
 
-### BE-AGENT: Backend Developer — Agent
-**Роль:** Backend Developer для agent.housler.ru
+### Python
+```python
+from housler_crypto import HouslerCrypto
 
-**Специализация:**
-- Node.js / TypeScript / Express
-- PostgreSQL через pg + pgcrypto
-- JWT авторизация
-- PII encryption (housler-crypto)
-- SMS.RU интеграция
+crypto = HouslerCrypto(encryption_key="...", salt="...")
 
-**Ключевые файлы:**
-- `backend/src/services/auth.service.ts` — авторизация (shared!)
-- `backend/src/services/sms.service.ts` — SMS отправка
-- `backend/src/services/encryption.service.ts` — шифрование
-- `backend/src/api/routes/*.ts` — API endpoints
+# Encrypt
+encrypted = crypto.encrypt("user@example.com")
+# => "hc1:AbCdEf..."
 
-**Текущий фокус:** Auth endpoints, encryption migration, API для lk
+# Decrypt
+plaintext = crypto.decrypt(encrypted)
 
----
+# Blind index (для поиска)
+index = crypto.hash("user@example.com")
 
-### BE-LK: Backend Developer — LK
-**Роль:** Backend Developer для lk.housler.ru
-
-**Специализация:**
-- Python 3.11+ / FastAPI / async
-- SQLAlchemy 2.0 + asyncpg
-- Pydantic schemas
-- Celery background tasks
-- MinIO file storage
-
-**Ключевые файлы:**
-- `backend/app/services/auth/` — OTP авторизация
-- `backend/app/services/sms/` — SMS провайдеры
-- `backend/app/api/v1/endpoints/` — API endpoints
-- `backend/alembic/` — миграции
-
-**Текущий фокус:** Agent API интеграция, документы, подписание
-
----
-
-### BE-CRYPTO: Crypto Library Developer
-**Роль:** Разработчик housler-crypto
-
-**Специализация:**
-- AES-256-GCM шифрование
-- PBKDF2-SHA256 key derivation
-- Blind index для поиска
-- Python + TypeScript реализации
-- 152-ФЗ compliance
-
-**Ключевые файлы:**
-- `python/housler_crypto/core.py` — Python реализация
-- `typescript/src/index.ts` — TypeScript реализация
-- `python/tests/` — Python тесты
-- `typescript/__tests__/` — TypeScript тесты
-
-**Текущий фокус:** PyPI/npm публикация, интеграция в agent/lk
-
----
-
-## Frontend Team
-
-### FE-AGENT: Frontend Developer — Agent
-**Роль:** Frontend Developer для agent.housler.ru
-
-**Специализация:**
-- Next.js 14 / React / TypeScript
-- Tailwind CSS
-- Zustand state management
-- React Hook Form + Zod validation
-
-**Ключевые файлы:**
-- `frontend/src/app/` — Next.js pages
-- `frontend/src/components/` — UI компоненты
-- `frontend/src/services/` — API клиенты
-- `frontend/src/stores/` — Zustand stores
-
-**Текущий фокус:** Wizard flow, auth UI, карточки объектов
-
----
-
-### FE-LK: Frontend Developer — LK
-**Роль:** Frontend Developer для lk.housler.ru
-
-**Специализация:**
-- Next.js 14 / React / TypeScript
-- Tailwind CSS
-- Document viewer/editor
-- E-sign UI
-
-**Ключевые файлы:**
-- `frontend/src/app/` — Next.js pages
-- `frontend/src/components/` — UI компоненты
-- `frontend/src/features/` — Feature modules
-
-**Текущий фокус:** Dashboard, документы, подписание
-
----
-
-## Infrastructure
-
-### INFRA-01: DevOps Engineer
-**Роль:** DevOps / Infrastructure Engineer
-
-**Обязанности:**
-- Docker и docker-compose конфигурации
-- Nginx reverse proxy
-- SSL сертификаты (Let's Encrypt)
-- CI/CD pipelines (GitHub Actions)
-- Мониторинг (Grafana, Prometheus, Loki)
-- Backup и recovery
-
-**Инфраструктура:**
-```
-Сервер: 95.163.227.26 (reg.ru Cloud)
-├── nginx (reverse proxy, SSL termination)
-├── agent.housler.ru
-│   ├── agent-frontend (Next.js)
-│   ├── agent-backend (Node.js)
-│   ├── agent-postgres (PostgreSQL) — SHARED
-│   └── agent-redis
-├── lk.housler.ru
-│   ├── lk-frontend (Next.js)
-│   ├── lk-backend (FastAPI)
-│   ├── lk-minio (S3)
-│   └── lk-redis
-├── Monitoring stack
-│   ├── grafana
-│   ├── prometheus
-│   └── loki
-└── Security
-    ├── fail2ban
-    └── ufw firewall
+# Masking
+masked = crypto.mask_email("user@example.com")
+# => "u***@example.com"
 ```
 
-**Ключевые файлы:**
-- `docker-compose.prod.yml` — production compose
-- `.github/workflows/` — CI/CD pipelines
-- `nginx/` — nginx конфигурации
+### TypeScript
+```typescript
+import { HouslerCrypto } from 'housler-crypto';
 
----
+const crypto = new HouslerCrypto({ encryptionKey: '...', salt: '...' });
 
-## QA Team
-
-### QA-01: QA Engineer
-**Роль:** QA Engineer — Backend & Frontend Testing
-
-**Специализация:**
-- Jest (TypeScript) / pytest (Python)
-- Playwright E2E
-- API testing
-- Security testing
-
-**Ключевые файлы:**
-- `backend/src/__tests__/` — backend тесты (agent)
-- `backend/tests/` — backend тесты (lk)
-- `e2e/` — E2E тесты
-
-**Текущий фокус:** Auth tests, encryption tests, E2E happy path
-
----
-
-## Матрица ответственности
-
-| Область | Primary | Backup | Reviewer |
-|---------|---------|--------|----------|
-| Agent Auth | BE-AGENT | BE-LK | ARCH-01 |
-| LK Auth | BE-LK | BE-AGENT | ARCH-01 |
-| PII Encryption | BE-CRYPTO | BE-AGENT | ARCH-01 |
-| Agent API | BE-AGENT | — | ARCH-01 |
-| LK API | BE-LK | — | ARCH-01 |
-| Agent UI | FE-AGENT | FE-LK | TPM |
-| LK UI | FE-LK | FE-AGENT | TPM |
-| Infrastructure | INFRA-01 | — | ARCH-01 |
-| CI/CD | INFRA-01 | — | ARCH-01 |
-| Backend Tests | QA-01 | BE-* | TPM |
-| E2E Tests | QA-01 | FE-* | TPM |
-
----
-
-## Критические зависимости
-
-```
-┌─────────────────────────────────────────────────────────────┐
-│                    HOUSLER ECOSYSTEM                        │
-├─────────────────────────────────────────────────────────────┤
-│                                                             │
-│  ┌─────────────┐      ┌─────────────┐      ┌─────────────┐ │
-│  │   agent     │◄────►│    lk       │      │   club      │ │
-│  │ housler.ru  │      │ housler.ru  │      │ housler.ru  │ │
-│  └──────┬──────┘      └──────┬──────┘      └─────────────┘ │
-│         │                    │                              │
-│         │    ┌───────────────┘                              │
-│         │    │                                              │
-│         ▼    ▼                                              │
-│  ┌─────────────────┐    ┌─────────────┐                    │
-│  │  agent-postgres │    │housler-crypto│                    │
-│  │   (SHARED DB)   │    │  (SHARED LIB)│                    │
-│  └─────────────────┘    └─────────────┘                    │
-│                                                             │
-│  Auth Flow:                                                 │
-│  lk.housler.ru ──► agent.housler.ru/api/auth/* ──► JWT     │
-│                                                             │
-└─────────────────────────────────────────────────────────────┘
+const encrypted = crypto.encrypt('user@example.com');
+const plaintext = crypto.decrypt(encrypted);
+const index = crypto.hash('user@example.com');
 ```
 
-**Правило:** Изменения в auth компонентах agent влияют на lk!
+---
+
+## Совместимость
+
+**КРИТИЧНО:** Python и TypeScript реализации ДОЛЖНЫ быть совместимы!
+
+```python
+# Зашифровано в Python
+encrypted = python_crypto.encrypt("test")
+
+# Расшифровано в TypeScript
+plaintext = ts_crypto.decrypt(encrypted)
+assert plaintext == "test"  # MUST PASS!
+```
+
+---
+
+## Тестирование
+
+```bash
+# Python
+cd python && pytest -v --cov=housler_crypto --cov-report=term-missing
+
+# TypeScript
+cd typescript && npm test -- --coverage
+
+# Все тесты (CI)
+# Запускается автоматически через GitHub Actions
+```
+
+---
+
+## Definition of Done
+
+- [ ] Тесты проходят (Python + TypeScript)
+- [ ] Coverage ≥ 90%
+- [ ] Cross-language compatibility verified
+- [ ] Type hints / TypeScript types корректны
+- [ ] Нет breaking changes в API
+- [ ] CHANGELOG обновлён
+
+---
+
+## Публикация (блокеры)
+
+### PyPI
+- Требуется настройка Trusted Publishing
+- Settings → Publishing → Add GitHub Actions publisher
+
+### npm
+- Требуется NPM_TOKEN в GitHub Secrets
+- Settings → Secrets → Actions → NPM_TOKEN
+
+---
+
+## Запрещено
+
+- Использовать слабые алгоритмы (MD5, SHA1, DES, ECB mode)
+- Хардкодить ключи в коде
+- Логировать plaintext PII
+- Менять формат `hc1:...` без миграции
+- Breaking changes без major version bump
