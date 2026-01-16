@@ -17,10 +17,23 @@
     "pii",
     "aes-gcm",
     "152-fz",
-    "housler"
+    "housler",
+    "gdpr",
+    "cryptography"
   ],
-  "author": "Housler Team",
+  "author": "Housler Team <dev@housler.ru>",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/nikita-tita/housler-crypto.git"
+  },
+  "homepage": "https://github.com/nikita-tita/housler-crypto#readme",
+  "bugs": {
+    "url": "https://github.com/nikita-tita/housler-crypto/issues"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
   "devDependencies": {
     "@types/node": "^20.0.0",
     "typescript": "^5.0.0",
