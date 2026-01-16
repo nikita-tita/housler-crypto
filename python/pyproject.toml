@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "housler-crypto"
-version = "1.0.0"
+version = "1.0.1"
 description = "Unified PII encryption library for Housler ecosystem (152-FZ compliant)"
 readme = "README.md"
 license = {text = "MIT"}

@@ -1,6 +1,6 @@
 {
   "name": "@housler/crypto",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Unified PII encryption for Housler ecosystem (152-FZ compliant)",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
