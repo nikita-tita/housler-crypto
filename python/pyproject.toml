@@ -37,9 +37,10 @@ dev = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/housler/housler-crypto"
-Documentation = "https://github.com/housler/housler-crypto#readme"
-Repository = "https://github.com/housler/housler-crypto"
+Homepage = "https://github.com/nikita-tita/housler-crypto"
+Documentation = "https://github.com/nikita-tita/housler-crypto#readme"
+Repository = "https://github.com/nikita-tita/housler-crypto"
+Issues = "https://github.com/nikita-tita/housler-crypto/issues"
 
 [tool.setuptools.packages.find]
 where = ["."]
