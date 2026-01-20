@@ -5,6 +5,33 @@ on:
     types: [published]
 
 jobs:
+  publish-auth:
+    runs-on: ubuntu-latest
+    environment: release
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          registry-url: 'https://registry.npmjs.org'
+
+      - name: Install dependencies
+        working-directory: auth
+        run: npm ci
+
+      - name: Build
+        working-directory: auth
+        run: npm run build
+
+      - name: Publish to npm
+        working-directory: auth
+        run: npm publish --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
   publish-python:
     runs-on: ubuntu-latest
     environment: release

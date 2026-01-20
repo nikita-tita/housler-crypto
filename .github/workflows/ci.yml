@@ -7,6 +7,28 @@ on:
     branches: [main]
 
 jobs:
+  test-auth:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        working-directory: auth
+        run: npm ci
+
+      - name: Type check
+        working-directory: auth
+        run: npm run typecheck
+
+      - name: Build
+        working-directory: auth
+        run: npm run build
+
   test-python:
     runs-on: ubuntu-latest
     strategy:

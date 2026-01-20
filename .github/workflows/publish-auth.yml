@@ -1,0 +1,103 @@
+name: Publish Auth Package
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'auth/**'
+      - '.github/workflows/publish-auth.yml'
+  workflow_dispatch:
+
+jobs:
+  test:
+    name: Test Auth Package
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: auth/package-lock.json
+
+      - name: Install dependencies
+        working-directory: auth
+        run: npm ci
+
+      - name: Type check
+        working-directory: auth
+        run: npm run typecheck
+
+      - name: Build
+        working-directory: auth
+        run: npm run build
+
+  publish:
+    name: Publish to npm
+    runs-on: ubuntu-latest
+    needs: test
+    if: github.ref == 'refs/heads/main'
+    environment: release
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          registry-url: 'https://registry.npmjs.org'
+          cache: 'npm'
+          cache-dependency-path: auth/package-lock.json
+
+      - name: Install dependencies
+        working-directory: auth
+        run: npm ci
+
+      - name: Build
+        working-directory: auth
+        run: npm run build
+
+      - name: Configure git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Bump version and publish
+        working-directory: auth
+        run: |
+          # Get current version
+          CURRENT=$(node -p "require('./package.json').version")
+          echo "Current version: $CURRENT"
+
+          # Check if this version exists on npm
+          if npm view @housler/auth@$CURRENT version 2>/dev/null; then
+            echo "Version $CURRENT exists, bumping patch..."
+            npm version patch --no-git-tag-version
+            NEW_VERSION=$(node -p "require('./package.json').version")
+            echo "New version: $NEW_VERSION"
+          else
+            echo "Version $CURRENT does not exist on npm, publishing as-is"
+            NEW_VERSION=$CURRENT
+          fi
+
+          # Publish
+          npm publish --access public
+
+          # Commit version bump if changed
+          if [ "$CURRENT" != "$NEW_VERSION" ]; then
+            cd ..
+            git add auth/package.json
+            git commit -m "chore(auth): bump version to $NEW_VERSION [skip ci]"
+            git push
+          fi
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Notify success
+        run: echo "Published @housler/auth successfully!"
